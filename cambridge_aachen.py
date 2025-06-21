@@ -66,8 +66,9 @@ for i in range(len(data)):
     else:
         print(i, "and", index_location, "would not merge")
 '''#current working spot, come back to this
-
-for i in range(32):
+i = 0
+#for i in range(len(data)):
+while i < len(data):    
     sml_R, index_loc, total, original_input = min_finder(i)
     if sml_R <= 0.16:
         #print("event",i,"and",index_loc,"would merge")
@@ -81,12 +82,16 @@ for i in range(32):
         data = data.drop([i])
         data = data.drop([index_loc])
         data = pd.concat([data,cc], ignore_index=True)
+        i += 1
+        
 
     #collider_coords = pd.concat([collider_coords,pd.DataFrame(args)], ignore_index=True) #it says this will stop being updated for something
 
 
     else:
+        
         print("event ",i," and ",index_loc," would NOT merge")
+        i += 1
 print(data)
 
 
