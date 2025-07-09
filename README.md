@@ -16,5 +16,7 @@
   same as Eta_Phi_PT_Mass_objects but with removed header
 #### iter_counting.py
   much like Coords.py, but can do arbitrary numbers of particle combinations
+#### fix_anti_kt.py
+  an implementation of kt, ant-kt, and cambridge_aachen, only works for cambridge_aachen w/ n=0 currently
 
 
