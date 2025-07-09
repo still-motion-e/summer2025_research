@@ -39,22 +39,22 @@ for i in range(2, arg2+1):
         py = []
         pz = []
         for t in range(len(g)):
-            print(len(g))
-            print(g)
+            #print(len(g))
+            #print(g)
             en.append(four_vect[g[t],0])
             px.append(four_vect[g[t],1])
             py.append(four_vect[g[t],2])
             pz.append(four_vect[g[t],3])
-        print(en,"these are my enegy values",g)
+        #print(en,"these are my enegy values",g)
         
         mass.append(math.sqrt(max(0.0,(math.pow(sum(en),2)-math.pow(sum(px),2)-math.pow(sum(py),2)-math.pow(sum(pz),2)))))
         #mass.append(math.sqrt(max(0.0,(math.pow(four_vect[g[0],0] + four_vect[g[1],0],2)-math.pow(four_vect[g[0],1]+four_vect[g[1],1],2)-
             #math.pow(four_vect[g[0],2]+four_vect[g[1],2],2)-math.pow(four_vect[g[0],3]+four_vect[g[1],3],2)))))
     #print(len(mass),"length of mass list")
 
-    plt.hist(mass, bins = 25, range=[0,50])
-    plt.yscale('log')
-    plt.xlabel("mass(GeV)")
-    plt.ylabel("number")
-    plt.show()
-    mass.clear()
+plt.hist(mass, bins = 25, range=[0,200])
+plt.yscale('log')
+plt.xlabel("mass(GeV)")
+plt.ylabel("number")
+plt.show()
+mass.clear()
