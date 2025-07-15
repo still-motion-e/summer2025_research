@@ -13,11 +13,11 @@ arg1 = sys.argv[1]
 data = pd.read_csv(arg1, sep=' ')
 print(data, "this is our starting point")
 
-n = int(sys.argv[2])
+#n = int(sys.argv[2])
 
 def min_finder(value):
     k = 0
-    test_df = pd.DataFrame(columns=["R","Parent_1","Parent_2","PT_1","PT_2","min",'d'])
+    test_df = pd.DataFrame(columns=["R","Parent_i","Parent_j","PT_i","PT_j","min",'d','PT2_i'])
 
     stimp = []
     for j in range(value):
@@ -27,12 +27,14 @@ def min_finder(value):
             if d_phi > np.pi:
                 d_phi = 2*np.pi - d_phi
             test_df.loc[k,'R'] = (d_phi**2+d_eta**2)#*min(data['PT'].loc[data.index[i]]**-2,data['PT'].loc[data.index[j]]**-2)
-            test_df.loc[k,'min'] = min(math.pow(data['PT'].loc[data.index[i]],n),math.pow(data['PT'].loc[data.index[j]],n))
-            test_df.loc[k,'Parent_1'] = i
-            test_df.loc[k,'Parent_2'] = j
-            test_df.loc[k,'PT_1'] = data['PT'].loc[data.index[i]]
-            test_df.loc[k,'PT_2'] = data['PT'].loc[data.index[j]]
+            test_df.loc[k,'min'] = min(math.pow(data['PT'].loc[data.index[i]],-2),math.pow(data['PT'].loc[data.index[j]],-2))
+            test_df.loc[k,'Parent_i'] = i
+            test_df.loc[k,'Parent_j'] = j
+            test_df.loc[k,'PT_i'] = data['PT'].loc[data.index[i]]
+            test_df.loc[k,'PT_j'] = data['PT'].loc[data.index[j]]
             test_df.loc[k,'d'] = test_df.loc[k,'R']*test_df.loc[k,'min']
+            test_df.loc[k,'PT2_i'] = data['PT'].loc[data.index[i]]**2
+
 
             k += 1
     test_df = test_df.sort_values(by='d')
@@ -91,6 +93,57 @@ def merge_events(event_1,event_2):                          #Merges two events E
     return merged 
 
 
+yo = min_finder(len(data))
+print(yo.sort_values(by='d'))
+print(yo.sort_values(by='PT2_i'))
+print(yo['PT2_i'].min())
+print(yo['d'].min())
+print(yo['PT2_i'].idxmin())
+print(yo['d'].idxmin())
+
+#print(yo.iloc[0])
+
+
+jets = pd.DataFrame(columns=["Eta","Phi","PT","Mass"])
+merge = True
+while merge == True:
+    if len(data) == 1:
+        break
+    d_values = min_finder(len(data))
+    if min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['d'].min():
+        four_holder = pd.DataFrame(columns=["E","Px","Py","Pz"])
+        four_holder = pd.concat([four_vectorizer(data.loc[d_values.loc[0,'Parent_i']]),four_holder],ignore_index=True)
+        four_holder = pd.concat([four_vectorizer(data.loc[d_values.loc[0,'Parent_j']]),four_holder],ignore_index=True)
+        mrgd_2 = merge_events(four_holder.loc[0],four_holder.loc[1])
+        col_merged = collider_convert(mrgd_2)
+        data = data.drop([d_values.loc[0,'Parent_i'],d_values.loc[0,'Parent_j']]) #drops the rows by number index
+        data = pd.concat([data,col_merged],ignore_index=True)
+        #print(data)
+        print("merged")
+    elif min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['PT2_i'].min():
+        jets = pd.concat([jets,data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]], ignore_index=True)
+        data = data.drop([d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]) #drops the rows by number index
+        print("ejected")
+    print(d_values)
+    print(len(data), "remaining length of data")
+    print(jets, "this is the jets i have")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 #print(min_finder(len(data)),"this is all of our important values")
 
 #d_values = min_finder(len(data))
@@ -130,7 +183,7 @@ while flag < 0.16:
         print(data)
         print("something went wrong again")
         break
-
+'''
 
 
 
