@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import math
 import matplotlib.pyplot as plt
-pd.set_option('display.precision',10)
+#pd.set_option('display.precision',10)
 arg1 = sys.argv[1]
 
 data = pd.read_csv(arg1, sep=' ')
@@ -33,7 +33,7 @@ def min_finder(value):
             test_df.loc[k,'PT_i'] = data['PT'].loc[data.index[i]]
             test_df.loc[k,'PT_j'] = data['PT'].loc[data.index[j]]
             test_df.loc[k,'d'] = test_df.loc[k,'R']*test_df.loc[k,'min']
-            test_df.loc[k,'PT2_i'] = data['PT'].loc[data.index[i]]**2
+            test_df.loc[k,'PT2_i'] = data['PT'].loc[data.index[i]]**-2
 
 
             k += 1
@@ -92,7 +92,7 @@ def merge_events(event_1,event_2):                          #Merges two events E
     merged.loc[0,"Pz"] = event_1.loc["Pz"] + event_2.loc["Pz"]
     return merged 
 
-
+'''
 yo = min_finder(len(data))
 print(yo.sort_values(by='d'))
 print(yo.sort_values(by='PT2_i'))
@@ -100,17 +100,32 @@ print(yo['PT2_i'].min())
 print(yo['d'].min())
 print(yo['PT2_i'].idxmin())
 print(yo['d'].idxmin())
-
-#print(yo.iloc[0])
-
+'''
 
 jets = pd.DataFrame(columns=["Eta","Phi","PT","Mass"])
 merge = True
+merge_history = []
+step_counter = 1
 while merge == True:
     if len(data) == 1:
         break
     d_values = min_finder(len(data))
+    print(d_values,"all remaining d_values")
+    print(d_values['d'].idxmin(), "d_ij")
+    print(d_values['PT2_i'].idxmin(), "pt^-2")
     if min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['d'].min():
+        words = "step: "+str(step_counter)+ " merging objects " + str(d_values.loc[0,'Parent_i']) + " and "+ str(d_values.loc[0,'Parent_j'])
+        step_counter += 1
+        '''
+        if step_counter == 30:
+            print(data)
+            print("breaking here to evaluate")
+            print(d_values['d'].min(), "this is d")
+            print(d_values['PT2_i'].min(),"this is PT2_i")
+            break
+        '''
+        merge_history.append(words)
+        print(words)
         four_holder = pd.DataFrame(columns=["E","Px","Py","Pz"])
         four_holder = pd.concat([four_vectorizer(data.loc[d_values.loc[0,'Parent_i']]),four_holder],ignore_index=True)
         four_holder = pd.concat([four_vectorizer(data.loc[d_values.loc[0,'Parent_j']]),four_holder],ignore_index=True)
@@ -118,15 +133,26 @@ while merge == True:
         col_merged = collider_convert(mrgd_2)
         data = data.drop([d_values.loc[0,'Parent_i'],d_values.loc[0,'Parent_j']]) #drops the rows by number index
         data = pd.concat([data,col_merged],ignore_index=True)
-        #print(data)
+        print(data)
         print("merged")
     elif min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['PT2_i'].min():
-        jets = pd.concat([jets,data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]], ignore_index=True)
+        print("declaring jet from object",d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'])
+        merge_words = "declaring jet from object " + str(d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'])
+        merge_history.append(merge_words)
+        print(merge_words)
+        #print(d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'], " should be Parent_i row")
+        #print(data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']], "should be the thing i want!!!")
+        #print(data.loc[d_va])
+        data_num = d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']
+        jets = pd.concat([jets,data.iloc[[data_num]]],ignore_index=True, axis=0)
+        #jets = pd.concat([jets,data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]],ignore_index=True)
+        #print(jets,"wizard stuff yo")
         data = data.drop([d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]) #drops the rows by number index
         print("ejected")
-    print(d_values)
     print(len(data), "remaining length of data")
     print(jets, "this is the jets i have")
+    for item in merge_history:
+        print(item)
 
 
 
