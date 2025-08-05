@@ -17,7 +17,7 @@ print(data, "this is our starting point")
 
 def min_finder(value):
     k = 0
-    test_df = pd.DataFrame(columns=["R","Parent_i","Parent_j","PT_i","PT_j","min",'d','PT2_i'])
+    test_df = pd.DataFrame(columns=["R","Parent_i","Parent_j","PT_i","PT_j","min",'d','PT2_i','PT2_j'])
 
     stimp = []
     for j in range(value):
@@ -32,8 +32,10 @@ def min_finder(value):
             test_df.loc[k,'Parent_j'] = j
             test_df.loc[k,'PT_i'] = data['PT'].loc[data.index[i]]
             test_df.loc[k,'PT_j'] = data['PT'].loc[data.index[j]]
-            test_df.loc[k,'d'] = test_df.loc[k,'R']*test_df.loc[k,'min']
+            test_df.loc[k,'d'] = test_df.loc[k,'R']*test_df.loc[k,'min']/0.16
             test_df.loc[k,'PT2_i'] = data['PT'].loc[data.index[i]]**-2
+            test_df.loc[k,'PT2_j'] = data['PT'].loc[data.index[j]]**-2
+
 
 
             k += 1
@@ -112,18 +114,10 @@ while merge == True:
     d_values = min_finder(len(data))
     print(d_values,"all remaining d_values")
     print(d_values['d'].idxmin(), "d_ij")
-    print(d_values['PT2_i'].idxmin(), "pt^-2")
-    if min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['d'].min():
-        words = "step: "+str(step_counter)+ " merging objects " + str(d_values.loc[0,'Parent_i']) + " and "+ str(d_values.loc[0,'Parent_j'])
+    print(data['PT'].idxmax(), "pt^-2")
+    if (d_values.loc[0,'d'] < data['PT'].max()**-2):
+        words = "step: "+str(step_counter)+ " merging objects " + str(d_values.loc[0,'Parent_i']) + " and "+ str(d_values.loc[0,'Parent_j']) + " with distance " + str(d_values.loc[0,'d']) + " which is less than " + str(d_values['PT2_i'].min())
         step_counter += 1
-        '''
-        if step_counter == 30:
-            print(data)
-            print("breaking here to evaluate")
-            print(d_values['d'].min(), "this is d")
-            print(d_values['PT2_i'].min(),"this is PT2_i")
-            break
-        '''
         merge_history.append(words)
         print(words)
         four_holder = pd.DataFrame(columns=["E","Px","Py","Pz"])
@@ -135,21 +129,23 @@ while merge == True:
         data = pd.concat([data,col_merged],ignore_index=True)
         print(data)
         print("merged")
-    elif min(d_values['d'].min(),d_values['PT2_i'].min()) == d_values['PT2_i'].min():
-        print("declaring jet from object",d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'])
-        merge_words = "declaring jet from object " + str(d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'])
+    elif (d_values.loc[0,'d'] > data['PT'].max()**-2):
+        print("declaring jet from object",data['PT'].idxmax())
+        merge_words = "declaring jet from object " + str(data['PT'].idxmax())
         merge_history.append(merge_words)
         print(merge_words)
-        #print(d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i'], " should be Parent_i row")
-        #print(data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']], "should be the thing i want!!!")
+        #print(data['PT'].idxmax(), " should be Parent_i row")
+        #print(data.loc[data['PT'].idxmax()], "should be the thing i want!!!")
         #print(data.loc[d_va])
-        data_num = d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']
+        data_num = data['PT'].idxmax()
         jets = pd.concat([jets,data.iloc[[data_num]]],ignore_index=True, axis=0)
-        #jets = pd.concat([jets,data.loc[d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]],ignore_index=True)
+        #jets = pd.concat([jets,data.loc[data['PT'].idxmax()]],ignore_index=True)
         #print(jets,"wizard stuff yo")
-        data = data.drop([d_values.loc[d_values['PT2_i'].idxmin(),'Parent_i']]) #drops the rows by number index
+        data = data.drop([data['PT'].idxmax()]) #drops the rows by number index
+        data = data.reset_index(drop = True)
         print("ejected")
     print(len(data), "remaining length of data")
+    print(data)
     print(jets, "this is the jets i have")
     for item in merge_history:
         print(item)
